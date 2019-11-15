@@ -4,8 +4,6 @@
 use std::collections::HashMap;
 
 use petgraph::prelude::*;
-
-use guts::prelude::*;
 // imports:1 ends here
 
 // exports
