@@ -1,6 +1,7 @@
 // imports
 
 // [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*imports][imports:1]]
+use serde::*;
 use std::collections::HashMap;
 
 use petgraph::prelude::*;
@@ -15,7 +16,7 @@ pub use petgraph::prelude::NodeIndex;
 // core
 
 // [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*core][core:1]]
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 /// networkx-like API wrapper around petgraph
 pub struct NxGraph<N, E>
 where
