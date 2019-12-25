@@ -49,7 +49,6 @@ fn test() {
     let n = nodes.len();
     for i in 0..n {
         for j in i..n {
-            dbg!((i, j));
             g.add_edge(nodes[i], nodes[j], Bond::new(1.2, 0.37));
         }
     }

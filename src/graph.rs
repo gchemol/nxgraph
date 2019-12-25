@@ -139,7 +139,8 @@ where
 
     /// Add an edge with `data` between `u` and `v`.
     pub fn add_edge(&mut self, u: NodeIndex, v: NodeIndex, data: E) {
-        let e = self.graph.add_edge(u, v, data);
+        // not add_edge for avoidding parallel edges
+        let e = self.graph.update_edge(u, v, data);
 
         // update node pair to edge index mapping.
         self.mapping.insert(node_pair_key(u, v), e);
@@ -160,6 +161,11 @@ where
     /// non-existent node will cause panic.
     pub fn remove_node(&mut self, n: NodeIndex) {
         let _ = self.graph.remove_node(n);
+    }
+
+    /// Remove all nodes and edges
+    pub fn clear(&mut self) {
+        self.graph.clear();
     }
 }
 // edit:1 ends here
@@ -386,7 +392,14 @@ mod test {
         let n1 = g.add_node(Node::default());
         let n2 = g.add_node(Node::default());
         let n3 = g.add_node(Node::default());
-        g.add_edge(n1, n2, Edge::default());
+
+        // add edges
+        g.add_edge(n1, n2, Edge { weight: 1.0 });
+        assert_eq!(1, g.number_of_edges());
+        g.add_edge(n1, n2, Edge { weight: 2.0 });
+        assert_eq!(1, g.number_of_edges());
+        assert_eq!(g[(n1, n2)].weight, 2.0);
+
         g.add_edge(n1, n3, Edge::default());
         let n4 = g.add_node(Node::default());
         g.remove_node(n4);
@@ -420,18 +433,23 @@ mod test {
 
         // loop over nodes
         for (node_index, node_data) in g.nodes() {
-            dbg!(node_index, node_data);
+            // dbg!(node_index, node_data);
         }
 
         // loop over edges
         for (u, v, edge_data) in g.edges() {
-            dbg!(u, v, edge_data);
+            // dbg!(u, v, edge_data);
         }
 
         // loop over neighbors of node `n1`
         for _ in g.neighbors(n1) {
             //
         }
+
+        // clear graph
+        g.clear();
+        assert_eq!(g.number_of_nodes(), 0);
+        assert_eq!(g.number_of_edges(), 0);
     }
 }
 // test:1 ends here
