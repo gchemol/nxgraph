@@ -146,21 +146,20 @@ where
         self.mapping.insert(node_pair_key(u, v), e);
     }
 
-    /// Remove an edge between `node1` and `node2`. Attempting to remove a
-    /// non-existent edge will cause panic.
-    pub fn remove_edge(&mut self, node1: NodeIndex, node2: NodeIndex) {
-        let e = self
-            .mapping
-            .remove(&node_pair_key(node1, node2))
-            .expect("no edge");
-
-        self.graph.remove_edge(e);
+    /// Remove an edge between `node1` and `node2`. Return None if trying to
+    /// remove a non-existent edge.
+    pub fn remove_edge(&mut self, node1: NodeIndex, node2: NodeIndex) -> Option<E> {
+        if let Some(e) = self.mapping.remove(&node_pair_key(node1, node2)) {
+            self.graph.remove_edge(e)
+        } else {
+            None
+        }
     }
 
-    /// Removes the node `n` and all adjacent edges. Attempting to remove a
-    /// non-existent node will cause panic.
-    pub fn remove_node(&mut self, n: NodeIndex) {
-        let _ = self.graph.remove_node(n);
+    /// Removes the node `n` and all adjacent edges. Return None if trying to
+    /// remove a non-existent node.
+    pub fn remove_node(&mut self, n: NodeIndex) -> Option<N> {
+        self.graph.remove_node(n)
     }
 
     /// Remove all nodes and edges
@@ -374,12 +373,12 @@ where
 mod test {
     use super::*;
 
-    #[derive(Default, Debug)]
+    #[derive(Clone, Default, Debug, PartialEq)]
     struct Edge {
         weight: f64,
     }
 
-    #[derive(Default, Debug)]
+    #[derive(Clone, Default, Debug, PartialEq)]
     struct Node {
         /// The Cartesian position of this `Node`.
         position: [f64; 3],
@@ -402,15 +401,27 @@ mod test {
 
         g.add_edge(n1, n3, Edge::default());
         let n4 = g.add_node(Node::default());
-        g.remove_node(n4);
+        let _ = g.remove_node(n4);
         assert_eq!(g.number_of_nodes(), 3);
         assert_eq!(g.number_of_edges(), 2);
+
+        // test remove node and edge
+        let node = Node { position: [1.0; 3] };
+        let n4 = g.add_node(node.clone());
+        let edge = Edge { weight: 2.2 };
+        g.add_edge(n1, n4, edge.clone());
+        let x = g.remove_edge(n2, n4);
+        assert_eq!(x, None);
+        let x = g.remove_edge(n1, n4);
+        assert_eq!(x, Some(edge));
+        let x = g.remove_node(n4);
+        assert_eq!(x, Some(node));
 
         // test graph
         assert!(g.has_node(n1));
         assert!(g.has_edge(n1, n2));
         assert!(!g.has_edge(n2, n3));
-        g.remove_edge(n1, n3);
+        let _ = g.remove_edge(n1, n3);
         assert_eq!(g.number_of_edges(), 1);
         assert!(!g.has_edge(n1, n3));
 
