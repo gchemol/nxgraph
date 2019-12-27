@@ -1,6 +1,7 @@
 // imports
 
 // [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*imports][imports:1]]
+use serde::*;
 use std::collections::HashMap;
 
 use petgraph::prelude::*;
@@ -15,7 +16,7 @@ pub use petgraph::prelude::NodeIndex;
 // core
 
 // [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*core][core:1]]
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 /// networkx-like API wrapper around petgraph
 pub struct NxGraph<N, E>
 where
@@ -138,27 +139,32 @@ where
 
     /// Add an edge with `data` between `u` and `v`.
     pub fn add_edge(&mut self, u: NodeIndex, v: NodeIndex, data: E) {
-        let e = self.graph.add_edge(u, v, data);
+        // not add_edge for avoidding parallel edges
+        let e = self.graph.update_edge(u, v, data);
 
         // update node pair to edge index mapping.
         self.mapping.insert(node_pair_key(u, v), e);
     }
 
-    /// Remove an edge between `node1` and `node2`. Attempting to remove a
-    /// non-existent edge will cause panic.
-    pub fn remove_edge(&mut self, node1: NodeIndex, node2: NodeIndex) {
-        let e = self
-            .mapping
-            .remove(&node_pair_key(node1, node2))
-            .expect("no edge");
-
-        self.graph.remove_edge(e);
+    /// Remove an edge between `node1` and `node2`. Return None if trying to
+    /// remove a non-existent edge.
+    pub fn remove_edge(&mut self, node1: NodeIndex, node2: NodeIndex) -> Option<E> {
+        if let Some(e) = self.mapping.remove(&node_pair_key(node1, node2)) {
+            self.graph.remove_edge(e)
+        } else {
+            None
+        }
     }
 
-    /// Removes the node `n` and all adjacent edges. Attempting to remove a
-    /// non-existent node will cause panic.
-    pub fn remove_node(&mut self, n: NodeIndex) {
-        let _ = self.graph.remove_node(n);
+    /// Removes the node `n` and all adjacent edges. Return None if trying to
+    /// remove a non-existent node.
+    pub fn remove_node(&mut self, n: NodeIndex) -> Option<N> {
+        self.graph.remove_node(n)
+    }
+
+    /// Remove all nodes and edges
+    pub fn clear(&mut self) {
+        self.graph.clear();
     }
 }
 // edit:1 ends here
@@ -367,12 +373,12 @@ where
 mod test {
     use super::*;
 
-    #[derive(Default, Debug)]
+    #[derive(Clone, Default, Debug, PartialEq)]
     struct Edge {
         weight: f64,
     }
 
-    #[derive(Default, Debug)]
+    #[derive(Clone, Default, Debug, PartialEq)]
     struct Node {
         /// The Cartesian position of this `Node`.
         position: [f64; 3],
@@ -385,18 +391,37 @@ mod test {
         let n1 = g.add_node(Node::default());
         let n2 = g.add_node(Node::default());
         let n3 = g.add_node(Node::default());
-        g.add_edge(n1, n2, Edge::default());
+
+        // add edges
+        g.add_edge(n1, n2, Edge { weight: 1.0 });
+        assert_eq!(1, g.number_of_edges());
+        g.add_edge(n1, n2, Edge { weight: 2.0 });
+        assert_eq!(1, g.number_of_edges());
+        assert_eq!(g[(n1, n2)].weight, 2.0);
+
         g.add_edge(n1, n3, Edge::default());
         let n4 = g.add_node(Node::default());
-        g.remove_node(n4);
+        let _ = g.remove_node(n4);
         assert_eq!(g.number_of_nodes(), 3);
         assert_eq!(g.number_of_edges(), 2);
+
+        // test remove node and edge
+        let node = Node { position: [1.0; 3] };
+        let n4 = g.add_node(node.clone());
+        let edge = Edge { weight: 2.2 };
+        g.add_edge(n1, n4, edge.clone());
+        let x = g.remove_edge(n2, n4);
+        assert_eq!(x, None);
+        let x = g.remove_edge(n1, n4);
+        assert_eq!(x, Some(edge));
+        let x = g.remove_node(n4);
+        assert_eq!(x, Some(node));
 
         // test graph
         assert!(g.has_node(n1));
         assert!(g.has_edge(n1, n2));
         assert!(!g.has_edge(n2, n3));
-        g.remove_edge(n1, n3);
+        let _ = g.remove_edge(n1, n3);
         assert_eq!(g.number_of_edges(), 1);
         assert!(!g.has_edge(n1, n3));
 
@@ -419,18 +444,23 @@ mod test {
 
         // loop over nodes
         for (node_index, node_data) in g.nodes() {
-            dbg!(node_index, node_data);
+            // dbg!(node_index, node_data);
         }
 
         // loop over edges
         for (u, v, edge_data) in g.edges() {
-            dbg!(u, v, edge_data);
+            // dbg!(u, v, edge_data);
         }
 
         // loop over neighbors of node `n1`
         for _ in g.neighbors(n1) {
             //
         }
+
+        // clear graph
+        g.clear();
+        assert_eq!(g.number_of_nodes(), 0);
+        assert_eq!(g.number_of_edges(), 0);
     }
 }
 // test:1 ends here
