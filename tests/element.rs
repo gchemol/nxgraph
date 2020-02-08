@@ -34,7 +34,7 @@ impl Atom {
 fn test() {
     let elements = vec!["C", "H", "O", "N"];
 
-    let mut g = nxgraph::NxGraph::new();
+    let mut g = gchemol_graph::NxGraph::new();
 
     // create graph node for each element
     let nodes: Vec<_> = elements
