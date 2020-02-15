@@ -3,7 +3,7 @@
 # [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*cargo][cargo:1]]
 [package]
 name = "gchemol-graph"
-version = "0.0.4"
+version = "0.0.5"
 edition = "2018"
 authors = ["Wenping Guo <ybyygu@gmail.com>"]
 description = "Networkx-like API wrapper around petgraph"

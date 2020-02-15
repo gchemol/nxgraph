@@ -166,6 +166,11 @@ where
     pub fn clear(&mut self) {
         self.graph.clear();
     }
+
+    /// Remove all edges
+    pub fn clear_edges(&mut self) {
+        self.graph.clear_edges()
+    }
 }
 // edit:1 ends here
 
@@ -224,6 +229,7 @@ where
 // nodes
 
 // [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*nodes][nodes:1]]
+/// Node view of graph, created with [nodes](struct.NxGraph.html#method.nodes) method.
 pub struct Nodes<'a, N, E>
 where
     N: Default,
@@ -283,6 +289,7 @@ where
 // edges
 
 // [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*edges][edges:1]]
+/// Edge view of graph, created with [edges](struct.NxGraph.html#method.edges) method.
 pub struct Edges<'a, N, E>
 where
     N: Default,
@@ -437,8 +444,11 @@ mod test {
         let edges = g.edges();
         assert_eq!(edges[(n1, n2)].weight, 0.3);
 
+        // node view
         let nodes = g.nodes();
         assert_eq!(nodes[n1].position, [1.9; 3]);
+
+        // edge view
         let edges = g.edges();
         assert_eq!(edges[(n2, n1)].weight, 0.3);
 
