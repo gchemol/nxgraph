@@ -16,4 +16,8 @@ serde = {version="1", features = ["derive"]}
 petgraph = {version="0.5", features=["serde-1"]}
 
 [dev-dependencies]
+itertools = "0.8"
+
+[features]
+adhoc = [] # for adhoc hacking
 # cargo:1 ends here

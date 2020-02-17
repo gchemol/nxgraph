@@ -137,6 +137,12 @@ where
         self.graph.add_node(data)
     }
 
+    #[cfg(feature = "adhoc")]
+    /// Add multiple nodes.
+    pub fn add_nodes_from<M: IntoIterator<Item = N>>(&mut self, nodes: M) -> Vec<NodeIndex> {
+        nodes.into_iter().map(|node| self.add_node(node)).collect()
+    }
+
     /// Add an edge with `data` between `u` and `v`.
     pub fn add_edge(&mut self, u: NodeIndex, v: NodeIndex, data: E) {
         // not add_edge for avoidding parallel edges
@@ -144,6 +150,14 @@ where
 
         // update node pair to edge index mapping.
         self.mapping.insert(node_pair_key(u, v), e);
+    }
+
+    #[cfg(feature = "adhoc")]
+    /// Add multiple edges from `edges`.
+    pub fn add_edges_from<M: IntoIterator<Item = (NodeIndex, NodeIndex, E)>>(&mut self, edges: M) {
+        for (u, v, d) in edges {
+            self.add_edge(u, v, d);
+        }
     }
 
     /// Remove an edge between `node1` and `node2`. Return None if trying to
