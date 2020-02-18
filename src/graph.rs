@@ -42,9 +42,7 @@ where
     E: Default,
 {
     pub fn new() -> Self {
-        Self {
-            ..Default::default()
-        }
+        Self { ..Default::default() }
     }
 
     fn edge_index_between(&self, n1: NodeIndex, n2: NodeIndex) -> Option<EdgeIndex> {
@@ -69,17 +67,13 @@ where
 
     /// Return data associated with edge `node1--node2`.
     fn get_edge_data(&self, node1: NodeIndex, node2: NodeIndex) -> &E {
-        let edge_index = self
-            .edge_index_between(node1, node2)
-            .expect("no edge index");
+        let edge_index = self.edge_index_between(node1, node2).expect("no edge index");
         self.graph.edge_weight(edge_index).expect("no edge")
     }
 
     /// Return a mutable reference of data associated with edge `node1--node2`.
     fn get_edge_data_mut(&mut self, node1: NodeIndex, node2: NodeIndex) -> &mut E {
-        let edge_index = self
-            .edge_index_between(node1, node2)
-            .expect("no edge index");
+        let edge_index = self.edge_index_between(node1, node2).expect("no edge index");
         self.graph.edge_weight_mut(edge_index).expect("no edge")
     }
 }
@@ -143,7 +137,7 @@ where
         nodes.into_iter().map(|node| self.add_node(node)).collect()
     }
 
-    /// Add an edge with `data` between `u` and `v`.
+    /// Add an edge with `data` between `u` and `v` (no parallel edge).
     pub fn add_edge(&mut self, u: NodeIndex, v: NodeIndex, data: E) {
         // not add_edge for avoidding parallel edges
         let e = self.graph.update_edge(u, v, data);
@@ -200,6 +194,11 @@ where
     /// Provides access to raw Graph struct.
     pub fn raw_graph(&self) -> &StableUnGraph<N, E> {
         &self.graph
+    }
+
+    /// Provides access to raw Graph struct.
+    pub fn raw_graph_mut(&mut self) -> &mut StableUnGraph<N, E> {
+        &mut self.graph
     }
 }
 // adhoc:1 ends here
@@ -403,6 +402,41 @@ where
 }
 // pub:1 ends here
 
+// pub
+
+// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*pub][pub:1]]
+impl<N, E> NxGraph<N, E>
+where
+    N: Default,
+    E: Default,
+{
+    // /// Returns an iterator that allows modifying each node weight.
+    // pub fn nodes_mut(&mut self) -> NodesMut<N, E> {
+    //     NodesMut::new(self)
+    // }
+
+    /// Returns an iterator that allows modifying each node weight.
+    pub fn nodes_mut(&mut self) -> impl Iterator<Item = (NodeIndex, &mut N)> {
+        let node_indices: Vec<_> = self.graph.node_indices().collect();
+        node_indices.into_iter().zip(self.graph.node_weights_mut())
+    }
+
+    /// Returns an iterator that allows modifying each edge weight.
+    pub fn edges_mut(&mut self) -> impl Iterator<Item = (NodeIndex, NodeIndex, &mut E)> {
+        let node_pairs: Vec<_> = self
+            .graph
+            .edge_indices()
+            .flat_map(|e| self.graph.edge_endpoints(e).into_iter())
+            .collect();
+
+        node_pairs
+            .into_iter()
+            .zip(self.graph.edge_weights_mut())
+            .map(|((u, v), e)| (u, v, e))
+    }
+}
+// pub:1 ends here
+
 // test
 
 // [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*test][test:1]]
@@ -432,8 +466,11 @@ mod test {
         // add edges
         g.add_edge(n1, n2, Edge { weight: 1.0 });
         assert_eq!(1, g.number_of_edges());
+
+        // add edge n1-n2 again. Note: no parallel edge
         g.add_edge(n1, n2, Edge { weight: 2.0 });
         assert_eq!(1, g.number_of_edges());
+        // edge data has been udpated
         assert_eq!(g[(n1, n2)].weight, 2.0);
 
         g.add_edge(n1, n3, Edge::default());
@@ -464,37 +501,32 @@ mod test {
 
         // edit node attributes
         g[n1].position = [1.9; 3];
+
         // node view
         let nodes = g.nodes();
         assert_eq!(nodes[n1].position, [1.9; 3]);
 
         // edit edge attributes
         g[(n1, n2)].weight = 0.3;
+
         // edge view
         let edges = g.edges();
         assert_eq!(edges[(n1, n2)].weight, 0.3);
-
-        // node view
-        let nodes = g.nodes();
-        assert_eq!(nodes[n1].position, [1.9; 3]);
-
-        // edge view
-        let edges = g.edges();
         assert_eq!(edges[(n2, n1)].weight, 0.3);
 
         // loop over nodes
-        for (node_index, node_data) in g.nodes() {
-            // dbg!(node_index, node_data);
+        for (u, node_data) in g.nodes() {
+            dbg!(u, node_data);
         }
 
         // loop over edges
         for (u, v, edge_data) in g.edges() {
-            // dbg!(u, v, edge_data);
+            dbg!(u, v, edge_data);
         }
 
         // loop over neighbors of node `n1`
-        for _ in g.neighbors(n1) {
-            //
+        for u in g.neighbors(n1) {
+            dbg!(&g[u]);
         }
 
         // clear graph

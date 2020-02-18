@@ -13,7 +13,7 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 serde = {version="1", features = ["derive"]}
-petgraph = {version="0.5", features=["serde-1"]}
+petgraph = {version="0.5.1-gwp", features=["serde-1"]}
 
 [dev-dependencies]
 itertools = "0.8"

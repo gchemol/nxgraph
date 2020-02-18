@@ -28,7 +28,6 @@ impl Atom {
 }
 
 #[test]
-#[cfg(feature = "adhoc")]
 fn test() {
     // for combinations method
     use itertools::*;
@@ -48,13 +47,13 @@ fn test() {
     assert_eq!(g.number_of_nodes(), 4);
     assert_eq!(g.number_of_edges(), 6);
 
-    // view atoms
-    let atoms = g.nodes();
     let n0 = nodes[0];
     let n1 = nodes[1];
     let n2 = nodes[2];
     let n3 = nodes[3];
 
+    // view atoms
+    let atoms = g.nodes();
     assert_eq!(atoms[n0].symbol, "C");
     assert_eq!(atoms[n1].symbol, "H");
     assert_eq!(atoms[n2].symbol, "O");
