@@ -188,6 +188,22 @@ where
 }
 // edit:1 ends here
 
+// adhoc
+
+// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*adhoc][adhoc:1]]
+#[cfg(feature = "adhoc")]
+impl<N, E> NxGraph<N, E>
+where
+    N: Default,
+    E: Default,
+{
+    /// Provides access to raw Graph struct.
+    pub fn raw_graph(&self) -> &StableUnGraph<N, E> {
+        &self.graph
+    }
+}
+// adhoc:1 ends here
+
 // node
 
 // [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*node][node:1]]
