@@ -143,7 +143,6 @@ where
         self.graph.add_node(data)
     }
 
-    #[cfg(feature = "adhoc")]
     /// Add multiple nodes.
     pub fn add_nodes_from<M: IntoIterator<Item = N>>(&mut self, nodes: M) -> Vec<NodeIndex> {
         nodes.into_iter().map(|node| self.add_node(node)).collect()
@@ -158,7 +157,6 @@ where
         self.mapping.insert(node_pair_key(u, v), e);
     }
 
-    #[cfg(feature = "adhoc")]
     /// Add multiple edges from `edges`.
     pub fn add_edges_from<M: IntoIterator<Item = (NodeIndex, NodeIndex, E)>>(&mut self, edges: M) {
         for (u, v, d) in edges {
@@ -482,41 +480,6 @@ where
     /// * https://networkx.github.io/documentation/stable/reference/classes/generated/networkx.Graph.edges.html
     pub fn edges(&self) -> Edges<N, E> {
         Edges::new(self)
-    }
-}
-// pub:1 ends here
-
-// pub
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*pub][pub:1]]
-impl<N, E> NxGraph<N, E>
-where
-    N: Default,
-    E: Default,
-{
-    // /// Returns an iterator that allows modifying each node weight.
-    // pub fn nodes_mut(&mut self) -> NodesMut<N, E> {
-    //     NodesMut::new(self)
-    // }
-
-    /// Returns an iterator that allows modifying each node weight.
-    pub fn nodes_mut(&mut self) -> impl Iterator<Item = (NodeIndex, &mut N)> {
-        let node_indices: Vec<_> = self.graph.node_indices().collect();
-        node_indices.into_iter().zip(self.graph.node_weights_mut())
-    }
-
-    /// Returns an iterator that allows modifying each edge weight.
-    pub fn edges_mut(&mut self) -> impl Iterator<Item = (NodeIndex, NodeIndex, &mut E)> {
-        let node_pairs: Vec<_> = self
-            .graph
-            .edge_indices()
-            .flat_map(|e| self.graph.edge_endpoints(e).into_iter())
-            .collect();
-
-        node_pairs
-            .into_iter()
-            .zip(self.graph.edge_weights_mut())
-            .map(|((u, v), e)| (u, v, e))
     }
 }
 // pub:1 ends here
