@@ -2,14 +2,22 @@
 
 # [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*cargo][cargo:1]]
 [package]
-name = "nxgraph"
-version = "0.0.2"
+name = "gchemol-graph"
+version = "0.1.0"
 edition = "2018"
 authors = ["Wenping Guo <ybyygu@gmail.com>"]
+description = "Networkx-like API wrapper around petgraph"
+homepage = "https://github.com/gchemol/nxgraph"
+repository = "https://github.com/gchemol/nxgraph"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 serde = {version="1", features = ["derive"]}
-petgraph = {version="0.4", features=["serde-1"]}
+petgraph = {version="0.5", features=["serde-1"]}
 
 [dev-dependencies]
+itertools = "0.8"
+
+[features]
+adhoc = [] # for adhoc hacking
 # cargo:1 ends here
