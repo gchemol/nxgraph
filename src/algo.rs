@@ -9,6 +9,7 @@ use itertools::Itertools;
 // api
 
 // [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*api][api:1]]
+/// Graph algorithms
 impl<N, E> NxGraph<N, E>
 where
     N: Default + Clone,
@@ -36,6 +37,20 @@ where
     /// Returns a subgraph induced on `nodes`. The induced subgraph of the graph
     /// contains the nodes in `nodes` and the edges between those nodes.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// use gchemol_graph::NxGraph;
+    /// 
+    /// // g: 1--2--3--4
+    /// let mut g = NxGraph::path_graph(4);
+    /// let nodes: Vec<_> = g.node_indices().collect();
+    /// // g: 1--2--3
+    /// let h = g.subgraph(&nodes[0..3]);
+    /// assert_eq!(h.number_of_nodes(), 3);
+    /// assert_eq!(h.number_of_edges(), 2);
+    /// ```
+    ///
     /// # Reference
     ///
     /// * https://networkx.github.io/documentation/stable/reference/classes/generated/networkx.Graph.subgraph.html
@@ -51,7 +66,7 @@ where
         for p in pairs.combinations(2) {
             let ((u, ui), (v, vi)) = (p[0], p[1]);
             if self.has_edge(*u, *v) {
-                let edge_data = self[(ui, vi)].clone();
+                let edge_data = self[(*u, *v)].clone();
                 g.add_edge(ui, vi, edge_data);
             }
         }
