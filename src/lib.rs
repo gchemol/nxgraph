@@ -1,6 +1,8 @@
 // mods
 
 // [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*mods][mods:1]]
+#[cfg(feature = "adhoc")]
+mod algo;
 mod graph;
 // mods:1 ends here
 

@@ -118,6 +118,11 @@ where
         self.graph.neighbors(n)
     }
 
+    /// Return an iterator over the node indices of the graph
+    pub fn node_indices(&self) -> impl Iterator<Item = NodeIndex> + '_ {
+        self.graph.node_indices()
+    }
+
     /// Returns true if the graph contains the node n.
     pub fn has_node(&self, n: NodeIndex) -> bool {
         self.graph.contains_node(n)
@@ -209,6 +214,11 @@ where
     /// Provides mut access to raw Graph struct.
     pub fn raw_graph_mut(&mut self) -> &mut StableUnGraph<N, E> {
         &mut self.graph
+    }
+
+    /// Return `NxGraph` from raw petgraph struct.
+    pub fn from_raw_graph(graph: StableUnGraph<N, E>) -> Self {
+        todo!()
     }
 }
 // adhoc:1 ends here
