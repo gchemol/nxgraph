@@ -147,7 +147,14 @@ where
 
     /// Add an edge with `data` between `u` and `v` (no parallel edge). If edge
     /// u--v already exists, the associated data will be updated.
+    ///
+    /// # Panics
+    ///
+    /// * To avoid self-loop, this method will panic if node `u` and `v` are the
+    /// same.
     pub fn add_edge(&mut self, u: NodeIndex, v: NodeIndex, data: E) {
+        assert_ne!(u, v, "self-loop is not allowed!");
+      
         // not add_edge for avoidding parallel edges
         let e = self.graph.update_edge(u, v, data);
 
@@ -483,6 +490,12 @@ mod test {
         weight: f64,
     }
 
+    impl Edge {
+        fn new(weight: f64) -> Self {
+            Self { weight }
+        }
+    }
+
     #[derive(Clone, Default, Debug, PartialEq)]
     struct Node {
         /// The Cartesian position of this `Node`.
@@ -567,6 +580,25 @@ mod test {
         g.clear();
         assert_eq!(g.number_of_nodes(), 0);
         assert_eq!(g.number_of_edges(), 0);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_speical_graph() {
+        let mut g = NxGraph::new();
+        let n1 = g.add_node(Node::default());
+        let n2 = g.add_node(Node::default());
+
+        g.add_edge(n1, n2, Edge::new(1.0));
+        assert_eq!(g[(n1, n2)].weight, 1.0);
+        assert_eq!(g[(n2, n1)].weight, 1.0);
+
+        // parallel edge is avoided
+        g.add_edge(n2, n1, Edge::new(2.0));
+        assert_eq!(g[(n1, n2)].weight, 2.0);
+
+        // self-loop is not allowed
+        g.add_edge(n2, n2, Edge::default());
     }
 }
 // test:1 ends here
