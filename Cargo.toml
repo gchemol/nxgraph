@@ -1,9 +1,7 @@
-# cargo
-
-# [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*cargo][cargo:1]]
+# [[file:nxgraph.note::*cargo][cargo:1]]
 [package]
 name = "gchemol-graph"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2018"
 authors = ["Wenping Guo <ybyygu@gmail.com>"]
 description = "Networkx-like API wrapper around petgraph"

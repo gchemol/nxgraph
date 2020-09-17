@@ -1,21 +1,15 @@
-// imports
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*imports][imports:1]]
+// [[file:../nxgraph.note::*imports][imports:1]]
 use serde::*;
 use std::collections::HashMap;
 
 use petgraph::prelude::*;
 // imports:1 ends here
 
-// exports
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*exports][exports:1]]
+// [[file:../nxgraph.note::*exports][exports:1]]
 pub use petgraph::prelude::NodeIndex;
 // exports:1 ends here
 
-// core
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*core][core:1]]
+// [[file:../nxgraph.note::*core][core:1]]
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 /// networkx-like API wrapper around petgraph
 pub struct NxGraph<N, E>
@@ -75,9 +69,7 @@ where
 }
 // core:1 ends here
 
-// base
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*base][base:1]]
+// [[file:../nxgraph.note::*base][base:1]]
 /// Build/Read/Edit Graph
 ///
 /// # Example
@@ -153,7 +145,8 @@ where
         nodes.into_iter().map(|node| self.add_node(node)).collect()
     }
 
-    /// Add an edge with `data` between `u` and `v` (no parallel edge).
+    /// Add an edge with `data` between `u` and `v` (no parallel edge). If edge
+    /// u--v already exists, the associated data will be updated.
     pub fn add_edge(&mut self, u: NodeIndex, v: NodeIndex, data: E) {
         // not add_edge for avoidding parallel edges
         let e = self.graph.update_edge(u, v, data);
@@ -197,9 +190,7 @@ where
 }
 // base:1 ends here
 
-// adhoc
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*adhoc][adhoc:1]]
+// [[file:../nxgraph.note::*adhoc][adhoc:1]]
 #[cfg(feature = "adhoc")]
 impl<N, E> NxGraph<N, E>
 where
@@ -223,9 +214,7 @@ where
 }
 // adhoc:1 ends here
 
-// create graph
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*create graph][create graph:1]]
+// [[file:../nxgraph.note::*create graph][create graph:1]]
 impl NxGraph<usize, usize> {
     /// Returns the Path graph `P_n` of linearly connected nodes. Node data and
     /// edge data are usize type, mainly for test purpose.
@@ -249,9 +238,7 @@ fn test_path_graph() {
 }
 // create graph:1 ends here
 
-// node
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*node][node:1]]
+// [[file:../nxgraph.note::*node][node:1]]
 impl<N, E> std::ops::Index<NodeIndex> for NxGraph<N, E>
 where
     N: Default,
@@ -275,9 +262,7 @@ where
 }
 // node:1 ends here
 
-// edge
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*edge][edge:1]]
+// [[file:../nxgraph.note::*edge][edge:1]]
 impl<N, E> std::ops::Index<(NodeIndex, NodeIndex)> for NxGraph<N, E>
 where
     N: Default,
@@ -301,9 +286,7 @@ where
 }
 // edge:1 ends here
 
-// nodes
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*nodes][nodes:1]]
+// [[file:../nxgraph.note::*nodes][nodes:1]]
 /// Node view of graph, created with [nodes](struct.NxGraph.html#method.nodes) method.
 pub struct Nodes<'a, N, E>
 where
@@ -361,9 +344,7 @@ where
 }
 // nodes:1 ends here
 
-// edges
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*edges][edges:1]]
+// [[file:../nxgraph.note::*edges][edges:1]]
 /// Edge view of graph, created with [edges](struct.NxGraph.html#method.edges) method.
 pub struct Edges<'a, N, E>
 where
@@ -428,9 +409,7 @@ where
 }
 // edges:1 ends here
 
-// pub
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*pub][pub:1]]
+// [[file:../nxgraph.note::*pub][pub:1]]
 /// Node view and Edge view for `NxGraph`.
 ///
 /// # Example
@@ -494,9 +473,7 @@ where
 }
 // pub:1 ends here
 
-// test
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*test][test:1]]
+// [[file:../nxgraph.note::*test][test:1]]
 #[cfg(test)]
 mod test {
     use super::*;
