@@ -154,7 +154,7 @@ where
     /// same.
     pub fn add_edge(&mut self, u: NodeIndex, v: NodeIndex, data: E) {
         assert_ne!(u, v, "self-loop is not allowed!");
-      
+
         // not add_edge for avoidding parallel edges
         let e = self.graph.update_edge(u, v, data);
 
@@ -197,8 +197,7 @@ where
 }
 // base:1 ends here
 
-// [[file:../nxgraph.note::*adhoc][adhoc:1]]
-#[cfg(feature = "adhoc")]
+// [[file:../nxgraph.note::*extra][extra:1]]
 impl<N, E> NxGraph<N, E>
 where
     N: Default,
@@ -213,10 +212,32 @@ where
     pub fn raw_graph_mut(&mut self) -> &mut StableUnGraph<N, E> {
         &mut self.graph
     }
+}
+// extra:1 ends here
 
+// [[file:../nxgraph.note::*adhoc][adhoc:1]]
+#[cfg(feature = "adhoc")]
+impl<N, E> NxGraph<N, E>
+where
+    N: Default,
+    E: Default,
+{
     /// Return `NxGraph` from raw petgraph struct.
     pub fn from_raw_graph(graph: StableUnGraph<N, E>) -> Self {
         todo!()
+    }
+   
+    /// Return the `Node` associated with node index `n`. Return None if no such
+    /// node `n`.
+    pub fn get_node(&self, n: NodeIndex) -> Option<&N> {
+        self.graph.node_weight(n)
+    }
+
+    /// Return the associated edge data between node `u` and `v`. Return None if
+    /// no such edge.
+    pub fn get_edge(&self, u: NodeIndex, v: NodeIndex) -> Option<&E> {
+        let ei = self.edge_index_between(u, v)?;
+        self.graph.edge_weight(ei)
     }
 }
 // adhoc:1 ends here
