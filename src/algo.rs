@@ -1,21 +1,18 @@
-// imports
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*imports][imports:1]]
+// [[file:../nxgraph.note::*imports][imports:1]]
 use crate::graph::{NodeIndex, NxGraph};
 
 use itertools::Itertools;
 // imports:1 ends here
 
-// api
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*api][api:1]]
+// [[file:../nxgraph.note::d40009e1][d40009e1]]
 /// Graph algorithms
 impl<N, E> NxGraph<N, E>
 where
     N: Default + Clone,
     E: Default + Clone,
 {
-    /// Build a default Graph
+    /// Returns an iterator over subgraphs induced by connected components in
+    /// arbitrary order.
     pub fn connected_components(&self) -> impl Iterator<Item = Self> + '_ {
         // get fragments from connected components
         let components = petgraph::algo::kosaraju_scc(self.raw_graph());
@@ -45,17 +42,26 @@ where
     /// // g: 1--2--3--4
     /// let mut g = NxGraph::path_graph(4);
     /// let nodes: Vec<_> = g.node_indices().collect();
+    /// 
     /// // g: 1--2--3
     /// let h = g.subgraph(&nodes[0..3]);
     /// assert_eq!(h.number_of_nodes(), 3);
     /// assert_eq!(h.number_of_edges(), 2);
     /// ```
     ///
+    /// # Panic
+    ///
+    /// * panics if there is any duplicate in `nodes`
+    ///
     /// # Reference
     ///
     /// * https://networkx.github.io/documentation/stable/reference/classes/generated/networkx.Graph.subgraph.html
     pub fn subgraph(&self, nodes: &[NodeIndex]) -> Self {
         let mut g = NxGraph::default();
+
+        // sanity check
+        let nodes_set: std::collections::HashSet<_> = nodes.iter().copied().collect();
+        assert_eq!(nodes_set.len(), nodes.len(), "nodes have duplicate {nodes:?}");
 
         // add nodes in this component
         let node_data = nodes.iter().map(|&n| self[n].clone());
@@ -74,11 +80,9 @@ where
         g
     }
 }
-// api:1 ends here
+// d40009e1 ends here
 
-// test
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*test][test:1]]
+// [[file:../nxgraph.note::*test][test:1]]
 #[test]
 fn test_subgraph() {
     // subgraph

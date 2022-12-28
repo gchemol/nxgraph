@@ -1,8 +1,8 @@
-# [[file:nxgraph.note::*cargo][cargo:1]]
+# [[file:nxgraph.note::270a5105][270a5105]]
 [package]
 name = "gchemol-graph"
 version = "0.1.2"
-edition = "2018"
+edition = "2021"
 authors = ["Wenping Guo <ybyygu@gmail.com>"]
 description = "Networkx-like API wrapper around petgraph"
 homepage = "https://github.com/gchemol/nxgraph"
@@ -19,4 +19,4 @@ itertools = "0.10"
 
 [features]
 adhoc = [] # for adhoc hacking
-# cargo:1 ends here
+# 270a5105 ends here
