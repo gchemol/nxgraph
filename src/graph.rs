@@ -215,7 +215,7 @@ where
 }
 // extra:1 ends here
 
-// [[file:../nxgraph.note::*adhoc][adhoc:1]]
+// [[file:../nxgraph.note::a03268f7][a03268f7]]
 #[cfg(feature = "adhoc")]
 impl<N, E> NxGraph<N, E>
 where
@@ -226,7 +226,7 @@ where
     pub fn from_raw_graph(graph: StableUnGraph<N, E>) -> Self {
         todo!()
     }
-   
+
     /// Return the `Node` associated with node index `n`. Return None if no such
     /// node `n`.
     pub fn get_node(&self, n: NodeIndex) -> Option<&N> {
@@ -239,8 +239,15 @@ where
         let ei = self.edge_index_between(u, v)?;
         self.graph.edge_weight(ei)
     }
+
+    /// Return mutable access to the associated edge data between node `u` and `v`. Return None if
+    /// no such edge.
+    pub fn get_edge_mut(&mut self, u: NodeIndex, v: NodeIndex) -> Option<&mut E> {
+        let ei = self.edge_index_between(u, v)?;
+        self.graph.edge_weight_mut(ei)
+    }
 }
-// adhoc:1 ends here
+// a03268f7 ends here
 
 // [[file:../nxgraph.note::*create graph][create graph:1]]
 impl NxGraph<usize, usize> {
