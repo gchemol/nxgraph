@@ -1,21 +1,15 @@
-// imports
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*imports][imports:1]]
+// [[file:../nxgraph.note::*imports][imports:1]]
 use serde::*;
 use std::collections::HashMap;
 
 use petgraph::prelude::*;
 // imports:1 ends here
 
-// exports
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*exports][exports:1]]
+// [[file:../nxgraph.note::*exports][exports:1]]
 pub use petgraph::prelude::NodeIndex;
 // exports:1 ends here
 
-// core
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*core][core:1]]
+// [[file:../nxgraph.note::*core][core:1]]
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 /// networkx-like API wrapper around petgraph
 pub struct NxGraph<N, E>
@@ -75,9 +69,7 @@ where
 }
 // core:1 ends here
 
-// base
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*base][base:1]]
+// [[file:../nxgraph.note::*base][base:1]]
 /// Build/Read/Edit Graph
 ///
 /// # Example
@@ -118,6 +110,11 @@ where
         self.graph.neighbors(n)
     }
 
+    /// Return an iterator over the node indices of the graph
+    pub fn node_indices(&self) -> impl Iterator<Item = NodeIndex> + '_ {
+        self.graph.node_indices()
+    }
+
     /// Returns true if the graph contains the node n.
     pub fn has_node(&self, n: NodeIndex) -> bool {
         self.graph.contains_node(n)
@@ -148,8 +145,16 @@ where
         nodes.into_iter().map(|node| self.add_node(node)).collect()
     }
 
-    /// Add an edge with `data` between `u` and `v` (no parallel edge).
+    /// Add an edge with `data` between `u` and `v` (no parallel edge). If edge
+    /// u--v already exists, the associated data will be updated.
+    ///
+    /// # Panics
+    ///
+    /// * To avoid self-loop, this method will panic if node `u` and `v` are the
+    /// same.
     pub fn add_edge(&mut self, u: NodeIndex, v: NodeIndex, data: E) {
+        assert_ne!(u, v, "self-loop is not allowed!");
+
         // not add_edge for avoidding parallel edges
         let e = self.graph.update_edge(u, v, data);
 
@@ -192,10 +197,7 @@ where
 }
 // base:1 ends here
 
-// adhoc
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*adhoc][adhoc:1]]
-#[cfg(feature = "adhoc")]
+// [[file:../nxgraph.note::*extra][extra:1]]
 impl<N, E> NxGraph<N, E>
 where
     N: Default,
@@ -211,11 +213,43 @@ where
         &mut self.graph
     }
 }
-// adhoc:1 ends here
+// extra:1 ends here
 
-// create graph
+// [[file:../nxgraph.note::a03268f7][a03268f7]]
+#[cfg(feature = "adhoc")]
+impl<N, E> NxGraph<N, E>
+where
+    N: Default,
+    E: Default,
+{
+    /// Return `NxGraph` from raw petgraph struct.
+    pub fn from_raw_graph(graph: StableUnGraph<N, E>) -> Self {
+        todo!()
+    }
 
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*create graph][create graph:1]]
+    /// Return the `Node` associated with node index `n`. Return None if no such
+    /// node `n`.
+    pub fn get_node(&self, n: NodeIndex) -> Option<&N> {
+        self.graph.node_weight(n)
+    }
+
+    /// Return the associated edge data between node `u` and `v`. Return None if
+    /// no such edge.
+    pub fn get_edge(&self, u: NodeIndex, v: NodeIndex) -> Option<&E> {
+        let ei = self.edge_index_between(u, v)?;
+        self.graph.edge_weight(ei)
+    }
+
+    /// Return mutable access to the associated edge data between node `u` and `v`. Return None if
+    /// no such edge.
+    pub fn get_edge_mut(&mut self, u: NodeIndex, v: NodeIndex) -> Option<&mut E> {
+        let ei = self.edge_index_between(u, v)?;
+        self.graph.edge_weight_mut(ei)
+    }
+}
+// a03268f7 ends here
+
+// [[file:../nxgraph.note::*create graph][create graph:1]]
 impl NxGraph<usize, usize> {
     /// Returns the Path graph `P_n` of linearly connected nodes. Node data and
     /// edge data are usize type, mainly for test purpose.
@@ -239,9 +273,7 @@ fn test_path_graph() {
 }
 // create graph:1 ends here
 
-// node
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*node][node:1]]
+// [[file:../nxgraph.note::*node][node:1]]
 impl<N, E> std::ops::Index<NodeIndex> for NxGraph<N, E>
 where
     N: Default,
@@ -265,9 +297,7 @@ where
 }
 // node:1 ends here
 
-// edge
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*edge][edge:1]]
+// [[file:../nxgraph.note::*edge][edge:1]]
 impl<N, E> std::ops::Index<(NodeIndex, NodeIndex)> for NxGraph<N, E>
 where
     N: Default,
@@ -291,9 +321,7 @@ where
 }
 // edge:1 ends here
 
-// nodes
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*nodes][nodes:1]]
+// [[file:../nxgraph.note::*nodes][nodes:1]]
 /// Node view of graph, created with [nodes](struct.NxGraph.html#method.nodes) method.
 pub struct Nodes<'a, N, E>
 where
@@ -351,9 +379,7 @@ where
 }
 // nodes:1 ends here
 
-// edges
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*edges][edges:1]]
+// [[file:../nxgraph.note::*edges][edges:1]]
 /// Edge view of graph, created with [edges](struct.NxGraph.html#method.edges) method.
 pub struct Edges<'a, N, E>
 where
@@ -418,9 +444,7 @@ where
 }
 // edges:1 ends here
 
-// pub
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*pub][pub:1]]
+// [[file:../nxgraph.note::*pub][pub:1]]
 /// Node view and Edge view for `NxGraph`.
 ///
 /// # Example
@@ -484,9 +508,7 @@ where
 }
 // pub:1 ends here
 
-// test
-
-// [[file:~/Workspace/Programming/gchemol-rs/nxgraph/nxgraph.note::*test][test:1]]
+// [[file:../nxgraph.note::*test][test:1]]
 #[cfg(test)]
 mod test {
     use super::*;
@@ -494,6 +516,12 @@ mod test {
     #[derive(Clone, Default, Debug, PartialEq)]
     struct Edge {
         weight: f64,
+    }
+
+    impl Edge {
+        fn new(weight: f64) -> Self {
+            Self { weight }
+        }
     }
 
     #[derive(Clone, Default, Debug, PartialEq)]
@@ -580,6 +608,25 @@ mod test {
         g.clear();
         assert_eq!(g.number_of_nodes(), 0);
         assert_eq!(g.number_of_edges(), 0);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_speical_graph() {
+        let mut g = NxGraph::new();
+        let n1 = g.add_node(Node::default());
+        let n2 = g.add_node(Node::default());
+
+        g.add_edge(n1, n2, Edge::new(1.0));
+        assert_eq!(g[(n1, n2)].weight, 1.0);
+        assert_eq!(g[(n2, n1)].weight, 1.0);
+
+        // parallel edge is avoided
+        g.add_edge(n2, n1, Edge::new(2.0));
+        assert_eq!(g[(n1, n2)].weight, 2.0);
+
+        // self-loop is not allowed
+        g.add_edge(n2, n2, Edge::default());
     }
 }
 // test:1 ends here
