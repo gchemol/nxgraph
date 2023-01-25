@@ -7,7 +7,7 @@ authors = ["Wenping Guo <ybyygu@gmail.com>"]
 description = "Networkx-like API wrapper around petgraph"
 homepage = "https://github.com/gchemol/nxgraph"
 repository = "https://github.com/gchemol/nxgraph"
-license = "MIT OR Apache-2.0"
+license = "GPL-3.0"
 readme = "README.md"
 
 [dependencies]
