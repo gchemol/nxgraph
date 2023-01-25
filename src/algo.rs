@@ -57,27 +57,24 @@ where
     ///
     /// * https://networkx.github.io/documentation/stable/reference/classes/generated/networkx.Graph.subgraph.html
     pub fn subgraph(&self, nodes: &[NodeIndex]) -> Self {
-        let mut g = NxGraph::default();
-
         // sanity check
         let nodes_set: std::collections::HashSet<_> = nodes.iter().copied().collect();
         assert_eq!(nodes_set.len(), nodes.len(), "nodes have duplicate {nodes:?}");
 
-        // add nodes in this component
-        let node_data = nodes.iter().map(|&n| self[n].clone());
-        let g_nodes = g.add_nodes_from(node_data);
+        let graph = self.raw_graph().filter_map(
+            // map nodes
+            |n, node_data: &N| {
+                if nodes_set.contains(&n) {
+                    Some(node_data.clone())
+                } else {
+                    None
+                }
+            },
+            // map edges
+            |e, edge_data: &E| Some(edge_data.clone()),
+        );
 
-        // add edges in this component
-        let pairs = nodes.iter().zip(g_nodes.into_iter());
-        for p in pairs.combinations(2) {
-            let ((u, ui), (v, vi)) = (p[0], p[1]);
-            if self.has_edge(*u, *v) {
-                let edge_data = self[(*u, *v)].clone();
-                g.add_edge(ui, vi, edge_data);
-            }
-        }
-
-        g
+        Self::from_raw_graph(graph)
     }
 }
 // d40009e1 ends here

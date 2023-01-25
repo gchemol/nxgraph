@@ -1,7 +1,7 @@
 # [[file:nxgraph.note::270a5105][270a5105]]
 [package]
 name = "gchemol-graph"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["Wenping Guo <ybyygu@gmail.com>"]
 description = "Networkx-like API wrapper around petgraph"

@@ -219,14 +219,9 @@ where
 #[cfg(feature = "adhoc")]
 impl<N, E> NxGraph<N, E>
 where
-    N: Default,
-    E: Default,
+    N: Default + Clone,
+    E: Default + Clone,
 {
-    /// Return `NxGraph` from raw petgraph struct.
-    pub fn from_raw_graph(graph: StableUnGraph<N, E>) -> Self {
-        todo!()
-    }
-
     /// Return the `Node` associated with node index `n`. Return None if no such
     /// node `n`.
     pub fn get_node(&self, n: NodeIndex) -> Option<&N> {
@@ -249,7 +244,30 @@ where
 }
 // a03268f7 ends here
 
-// [[file:../nxgraph.note::*create graph][create graph:1]]
+// [[file:../nxgraph.note::d04c099c][d04c099c]]
+/// Methods for creating `NxGraph` struct
+impl<N, E> NxGraph<N, E>
+where
+    N: Default + Clone,
+    E: Default + Clone,
+{
+    /// Return `NxGraph` from raw petgraph struct.
+    pub fn from_raw_graph(graph: StableUnGraph<N, E>) -> Self {
+        let edges: Vec<_> = graph
+            .edge_indices()
+            .map(|e| {
+                let (u, v) = graph.edge_endpoints(e).unwrap();
+                let edata = graph.edge_weight(e).unwrap().to_owned();
+                (u, v, edata)
+            })
+            .collect();
+
+        let mut g = Self { graph, ..Default::default() };
+        g.add_edges_from(edges);
+        g
+    }
+}
+
 impl NxGraph<usize, usize> {
     /// Returns the Path graph `P_n` of linearly connected nodes. Node data and
     /// edge data are usize type, mainly for test purpose.
@@ -271,7 +289,7 @@ fn test_path_graph() {
     assert_eq!(g.number_of_nodes(), 5);
     assert_eq!(g.number_of_edges(), 4);
 }
-// create graph:1 ends here
+// d04c099c ends here
 
 // [[file:../nxgraph.note::*node][node:1]]
 impl<N, E> std::ops::Index<NodeIndex> for NxGraph<N, E>
