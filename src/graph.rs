@@ -9,7 +9,9 @@ use petgraph::prelude::*;
 pub use petgraph::prelude::NodeIndex;
 // exports:1 ends here
 
-// [[file:../nxgraph.note::*core][core:1]]
+// [[file:../nxgraph.note::dfa4e9ef][dfa4e9ef]]
+use serde_json_any_key::*;
+
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 /// networkx-like API wrapper around petgraph
 pub struct NxGraph<N, E>
@@ -17,6 +19,7 @@ where
     N: Default,
     E: Default,
 {
+    #[serde(with = "any_key_map")]
     mapping: HashMap<(NodeIndex, NodeIndex), EdgeIndex>,
     graph: StableUnGraph<N, E>,
 }
@@ -67,7 +70,7 @@ where
         self.graph.edge_weight_mut(edge_index).expect("no edge")
     }
 }
-// core:1 ends here
+// dfa4e9ef ends here
 
 // [[file:../nxgraph.note::*base][base:1]]
 /// Build/Read/Edit Graph
