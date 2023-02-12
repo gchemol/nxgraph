@@ -10,8 +10,6 @@ pub use petgraph::prelude::NodeIndex;
 // exports:1 ends here
 
 // [[file:../nxgraph.note::dfa4e9ef][dfa4e9ef]]
-use serde_json_any_key::*;
-
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 /// networkx-like API wrapper around petgraph
 pub struct NxGraph<N, E>
@@ -19,18 +17,16 @@ where
     N: Default,
     E: Default,
 {
-    #[serde(with = "any_key_map")]
-    mapping: HashMap<(NodeIndex, NodeIndex), EdgeIndex>,
+    mapping: HashMap<String, EdgeIndex>,
     graph: StableUnGraph<N, E>,
 }
 
 /// return sorted node pair as mapping key.
-fn node_pair_key(n1: NodeIndex, n2: NodeIndex) -> (NodeIndex, NodeIndex) {
-    if n1 > n2 {
-        (n2, n1)
-    } else {
-        (n1, n2)
-    }
+// NOTE: if we return a tuple or array, we will encounter not string
+// key error for serde_json
+fn node_pair_key(n1: NodeIndex, n2: NodeIndex) -> String {
+    let v = if n1 > n2 { [n2, n1] } else { [n1, n2] };
+    format!("{}-{}", v[0].index(), v[1].index())
 }
 
 impl<N, E> NxGraph<N, E>
@@ -43,7 +39,7 @@ where
         // self.graph.find_edge(n1, n2)
 
         // make sure n1 is always smaller than n2.
-        let (n1, n2) = if n1 > n2 { (n2, n1) } else { (n1, n2) };
+        // let (n1, n2) = if n1 > n2 { (n2, n1) } else { (n1, n2) };
 
         self.mapping.get(&node_pair_key(n1, n2)).map(|v| *v)
     }
